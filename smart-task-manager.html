@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Task Manager — Portfolio Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1419;
+    --panel:#161B23;
+    --panel-2:#1D232D;
+    --border:#2A323F;
+    --border-soft:#232A35;
+    --text:#F1ECE2;
+    --text-dim:#9AA3B2;
+    --text-faint:#5C6573;
+    --accent:#E8A23D;
+    --accent-soft:rgba(232,162,61,0.14);
+    --accent-2:#5B9279;
+    --accent-2-soft:rgba(91,146,121,0.14);
+    --danger:#C9685A;
+    --danger-soft:rgba(201,104,90,0.14);
+    --radius:14px;
+    --ff-display:'Fraunces', serif;
+    --ff-body:'Manrope', sans-serif;
+    --ff-mono:'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,162,61,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(91,146,121,0.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--ff-body);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{
+    max-width:760px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{margin-bottom:40px;}
+  .eyebrow{
+    font-family:var(--ff-mono);
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:6px;height:6px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  h1{
+    font-family:var(--ff-display);
+    font-weight:600;
+    font-size:clamp(32px,5vw,44px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 14px;
+  }
+  .sub{
+    font-size:16px;
+    line-height:1.6;
+    color:var(--text-dim);
+    max-width:54ch;
+    margin:0;
+  }
+
+  /* ---------- App panel ---------- */
+  .app{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+    margin-bottom:28px;
+  }
+
+  .composer{
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  @media (max-width:560px){
+    .composer{grid-template-columns:1fr; }
+  }
+  .composer input{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    color:var(--text);
+    font-family:var(--ff-body);
+    font-size:14px;
+    padding:12px 14px;
+    outline:none;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .composer input::placeholder{color:var(--text-faint);}
+  .composer input:focus{
+    border-color:var(--accent);
+    background:var(--panel);
+  }
+  .composer input:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+
+  #addBtn{
+    background:var(--text);
+    color:var(--bg);
+    border:none;
+    border-radius:10px;
+    font-family:var(--ff-body);
+    font-weight:700;
+    font-size:14px;
+    padding:12px 18px;
+    cursor:pointer;
+    transition:transform .12s ease, opacity .12s ease;
+    white-space:nowrap;
+  }
+  #addBtn:hover{opacity:0.88;}
+  #addBtn:active{transform:scale(0.97);}
+  #addBtn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding-bottom:18px;
+    margin-bottom:18px;
+    border-bottom:1px dashed var(--border);
+  }
+
+  #organizeBtn{
+    background:linear-gradient(135deg, var(--accent), #d68f2f);
+    color:#1A1306;
+    border:none;
+    border-radius:10px;
+    font-family:var(--ff-body);
+    font-weight:800;
+    font-size:14px;
+    padding:11px 18px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .12s ease, box-shadow .15s ease, opacity .15s ease;
+    box-shadow:0 0 0 0 rgba(232,162,61,0.0);
+  }
+  #organizeBtn:hover{box-shadow:0 4px 18px rgba(232,162,61,0.25);}
+  #organizeBtn:active{transform:scale(0.97);}
+  #organizeBtn:disabled{opacity:0.6; cursor:wait;}
+  #organizeBtn:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .spinner{
+    width:13px;height:13px;
+    border-radius:50%;
+    border:2px solid rgba(26,19,6,0.35);
+    border-top-color:#1A1306;
+    animation:spin .7s linear infinite;
+    display:none;
+  }
+  #organizeBtn.loading .spinner{display:inline-block;}
+  #organizeBtn.loading .sparkle{display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .ai-status{
+    font-family:var(--ff-mono);
+    font-size:12px;
+    color:var(--text-dim);
+    min-height:16px;
+  }
+  .ai-status.error{color:var(--danger);}
+
+  /* ---------- Task list ---------- */
+  .task-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .task{
+    position:relative;
+    display:grid;
+    grid-template-columns:auto auto 1fr auto;
+    align-items:start;
+    gap:14px;
+    background:var(--panel-2);
+    border:1px solid var(--border-soft);
+    border-left:3px solid var(--border);
+    border-radius:10px;
+    padding:14px 14px 14px 16px;
+    will-change:transform;
+  }
+  .task.priority-urgent{border-left-color:var(--accent);}
+  .task.priority-high{border-left-color:#c9a36a;}
+  .task.priority-normal{border-left-color:var(--accent-2);}
+  .task.priority-low{border-left-color:var(--text-faint);}
+
+  .task.done{opacity:0.5;}
+  .task.done .task-title{text-decoration:line-through; text-decoration-color:var(--text-faint);}
+
+  .rank{
+    font-family:var(--ff-mono);
+    font-size:12px;
+    color:var(--text-faint);
+    padding-top:3px;
+    min-width:18px;
+  }
+
+  .check{
+    width:20px;height:20px;
+    border-radius:6px;
+    border:1.5px solid var(--text-faint);
+    background:transparent;
+    cursor:pointer;
+    margin-top:1px;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s ease, border-color .15s ease;
+    padding:0;
+  }
+  .check:hover{border-color:var(--accent-2);}
+  .check svg{width:12px;height:12px;opacity:0;transition:opacity .1s ease;}
+  .task.done .check{background:var(--accent-2); border-color:var(--accent-2);}
+  .task.done .check svg{opacity:1;}
+  .check:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .task-title{
+    font-size:14.5px;
+    font-weight:600;
+    line-height:1.4;
+    margin-bottom:6px;
+  }
+  .task-note{
+    font-size:13px;
+    color:var(--text-dim);
+    line-height:1.5;
+    margin-bottom:8px;
+  }
+  .task-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .badge{
+    font-family:var(--ff-mono);
+    font-size:10.5px;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:100px;
+    border:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .badge.priority-urgent{color:var(--accent); border-color:var(--accent); background:var(--accent-soft);}
+  .badge.priority-high{color:#c9a36a; border-color:#c9a36a; background:rgba(201,163,106,0.12);}
+  .badge.priority-normal{color:var(--accent-2); border-color:var(--accent-2); background:var(--accent-2-soft);}
+  .badge.priority-low{color:var(--text-faint); border-color:var(--border);}
+  .reason{
+    font-size:12px;
+    color:var(--text-faint);
+    font-style:italic;
+  }
+
+  .delete{
+    background:transparent;
+    border:none;
+    color:var(--text-faint);
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    padding:2px 4px;
+    border-radius:6px;
+    transition:color .15s ease, background .15s ease;
+  }
+  .delete:hover{color:var(--danger); background:var(--danger-soft);}
+  .delete:focus-visible{outline:2px solid var(--danger); outline-offset:2px;}
+
+  .empty-state{
+    display:none;
+    text-align:center;
+    padding:36px 16px;
+    color:var(--text-faint);
+    font-size:14px;
+    border:1px dashed var(--border);
+    border-radius:10px;
+  }
+  .empty-state.show{display:block;}
+
+  /* ---------- About / case study card ---------- */
+  .about{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+  }
+  .about-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+  @media (max-width:560px){
+    .about-grid{grid-template-columns:1fr;}
+  }
+  .about-grid > div:first-child{grid-column:1 / -1;}
+  .label{
+    display:block;
+    font-family:var(--ff-mono);
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  .about p{
+    margin:0;
+    font-size:13.5px;
+    line-height:1.65;
+    color:var(--text-dim);
+  }
+  .stack-tags{
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;
+  }
+  .stack-tags span{
+    font-family:var(--ff-mono);
+    font-size:11px;
+    color:var(--text-dim);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:3px 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="hero">
+    <div class="eyebrow">Portfolio Project · Full-Stack + AI</div>
+    <h1>Smart Task Manager</h1>
+    <p class="sub">A daily task list that doesn't just store what you type — it reads your tasks and reorders them by what actually matters today, with one click.</p>
+  </header>
+
+  <section class="app">
+    <div class="composer">
+      <input id="taskTitle" type="text" placeholder="What do you need to do?" maxlength="120">
+      <input id="taskNote" type="text" placeholder="Add a quick note (optional)" maxlength="160">
+      <button id="addBtn">Add task</button>
+    </div>
+
+    <div class="toolbar">
+      <button id="organizeBtn">
+        <span class="sparkle">✨</span>
+        <span class="spinner"></span>
+        <span class="btn-label">Organize with AI</span>
+      </button>
+      <span id="aiStatus" class="ai-status"></span>
+    </div>
+
+    <ul id="taskList" class="task-list"></ul>
+    <div id="emptyState" class="empty-state">No tasks yet — add your first one above to get started.</div>
+  </section>
+
+  <section class="about">
+    <div class="about-grid">
+      <div>
+        <span class="label">The project</span>
+        <p>A web app where you write your daily tasks like a normal list — except it's not just a list. An AI organizer reads each task and sorts your day by real priority instead of the order you typed them in.</p>
+      </div>
+      <div>
+        <span class="label">The benefit</span>
+        <p>Brings together a working UI, persistent state, and an AI integration layer that reasons about unstructured text and returns structured data the interface can render.</p>
+      </div>
+      <div>
+        <span class="label">Difficulty</span>
+        <p>Medium</p>
+      </div>
+    </div>
+    <div class="stack-tags">
+      <span>HTML</span><span>CSS</span><span>Vanilla JS</span><span>Claude API</span><span>Persistent storage</span><span>FLIP animation</span>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  let tasks = [];
+  const taskList = document.getElementById('taskList');
+  const emptyState = document.getElementById('emptyState');
+  const addBtn = document.getElementById('addBtn');
+  const titleInput = document.getElementById('taskTitle');
+  const noteInput = document.getElementById('taskNote');
+  const organizeBtn = document.getElementById('organizeBtn');
+  const aiStatus = document.getElementById('aiStatus');
+
+  function uid(){
+    return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7);
+  }
+
+  async function loadTasks(){
+    try{
+      const result = await window.storage.get('tasks', false);
+      tasks = result && result.value ? JSON.parse(result.value) : [];
+    }catch(e){
+      tasks = [];
+    }
+    render();
+  }
+
+  async function saveTasks(){
+    try{
+      await window.storage.set('tasks', JSON.stringify(tasks), false);
+    }catch(e){
+      console.error('Could not save tasks', e);
+    }
+  }
+
+  function checkSvg(){
+    return '<svg viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9L10 2.5" stroke="#0F1419" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+
+  function render(){
+    taskList.innerHTML = '';
+    if(tasks.length === 0){
+      emptyState.classList.add('show');
+      return;
+    }
+    emptyState.classList.remove('show');
+
+    tasks.forEach((t, i) => {
+      const li = document.createElement('li');
+      li.className = 'task' + (t.done ? ' done' : '') + (t.priority ? ' priority-' + t.priority : '');
+      li.dataset.id = t.id;
+
+      const badges = [];
+      if(t.priority){
+        badges.push('<span class="badge priority-' + t.priority + '">' + t.priority + '</span>');
+      }
+      if(t.category){
+        badges.push('<span class="badge">' + escapeHtml(t.category) + '</span>');
+      }
+      if(t.reason){
+        badges.push('<span class="reason">' + escapeHtml(t.reason) + '</span>');
+      }
+
+      li.innerHTML =
+        '<span class="rank">' + String(i+1).padStart(2,'0') + '</span>' +
+        '<button class="check" aria-label="Mark done">' + checkSvg() + '</button>' +
+        '<div class="task-body">' +
+          '<div class="task-title">' + escapeHtml(t.title) + '</div>' +
+          (t.note ? '<div class="task-note">' + escapeHtml(t.note) + '</div>' : '') +
+          (badges.length ? '<div class="task-meta">' + badges.join('') + '</div>' : '') +
+        '</div>' +
+        '<button class="delete" aria-label="Delete task">×</button>';
+
+      li.querySelector('.check').addEventListener('click', () => toggleDone(t.id));
+      li.querySelector('.delete').addEventListener('click', () => deleteTask(t.id));
+
+      taskList.appendChild(li);
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function addTask(){
+    const title = titleInput.value.trim();
+    if(!title) { titleInput.focus(); return; }
+    const note = noteInput.value.trim();
+    tasks.push({
+      id: uid(),
+      title: title,
+      note: note,
+      done: false,
+      priority: null,
+      category: null,
+      reason: null,
+      createdAt: Date.now()
+    });
+    titleInput.value = '';
+    noteInput.value = '';
+    titleInput.focus();
+    render();
+    saveTasks();
+  }
+
+  function toggleDone(id){
+    const t = tasks.find(x => x.id === id);
+    if(t){ t.done = !t.done; render(); saveTasks(); }
+  }
+
+  function deleteTask(id){
+    tasks = tasks.filter(x => x.id !== id);
+    render();
+    saveTasks();
+  }
+
+  addBtn.addEventListener('click', addTask);
+  titleInput.addEventListener('keydown', e => { if(e.key === 'Enter') addTask(); });
+  noteInput.addEventListener('keydown', e => { if(e.key === 'Enter') addTask(); });
+
+  // ---------- AI organize with FLIP reorder animation ----------
+
+  function capturePositions(){
+    const map = {};
+    taskList.querySelectorAll('.task').forEach(el => {
+      map[el.dataset.id] = el.getBoundingClientRect();
+    });
+    return map;
+  }
+
+  function playFlip(oldPositions){
+    const els = taskList.querySelectorAll('.task');
+    els.forEach(el => {
+      const id = el.dataset.id;
+      const oldRect = oldPositions[id];
+      if(!oldRect) return;
+      const newRect = el.getBoundingClientRect();
+      const dy = oldRect.top - newRect.top;
+      if(Math.abs(dy) < 1) return;
+      el.style.transition = 'none';
+      el.style.transform = 'translateY(' + dy + 'px)';
+      requestAnimationFrame(() => {
+        el.style.transition = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
+        el.style.transform = 'translateY(0)';
+      });
+    });
+  }
+
+  async function organizeWithAI(){
+    const openTasks = tasks.filter(t => !t.done);
+    if(openTasks.length === 0){
+      aiStatus.textContent = 'Add a few open tasks first.';
+      aiStatus.classList.add('error');
+      return;
+    }
+
+    organizeBtn.classList.add('loading');
+    organizeBtn.disabled = true;
+    aiStatus.classList.remove('error');
+    aiStatus.textContent = 'Reading your tasks…';
+
+    const payload = openTasks.map(t => ({ id: t.id, title: t.title, note: t.note || '' }));
+
+    const systemPrompt =
+      'You are a productivity assistant inside a task manager app. You will receive a JSON array of tasks. ' +
+      'Decide the best order to do them in today, and classify each one. ' +
+      'Respond with ONLY a raw JSON array, no markdown formatting, no code fences, no preamble or explanation. ' +
+      'Each element must be an object with exactly these keys: ' +
+      '"id" (string, copied exactly from input), ' +
+      '"priority" (one of "urgent", "high", "normal", "low"), ' +
+      '"category" (a short 1-2 word label like "Work", "Health", "Admin", "Learning", "Errand"), ' +
+      '"reason" (max 6 words explaining the priority, lowercase, no period). ' +
+      'Order the array itself from most important to do first, to least important. ' +
+      'Base urgency on deadlines, dependencies, and impact implied by the title/note — use reasonable judgment when information is limited.';
+
+    try{
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [
+            { role: 'user', content: JSON.stringify(payload) }
+          ]
+        })
+      });
+
+      if(!response.ok){
+        throw new Error('API request failed: ' + response.status);
+      }
+
+      const data = await response.json();
+      const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
+      const raw = textBlocks.join('').trim();
+      const cleaned = raw.replace(/^```json\s*|^```\s*|```$/g, '').trim();
+
+      let aiResults;
+      try{
+        aiResults = JSON.parse(cleaned);
+      }catch(parseErr){
+        throw new Error('Could not parse AI response');
+      }
+
+      if(!Array.isArray(aiResults)) throw new Error('Unexpected AI response shape');
+
+      const oldPositions = capturePositions();
+
+      const byId = {};
+      aiResults.forEach(r => { byId[r.id] = r; });
+
+      aiResults.forEach(r => {
+        const t = tasks.find(x => x.id === r.id);
+        if(t){
+          t.priority = ['urgent','high','normal','low'].includes(r.priority) ? r.priority : 'normal';
+          t.category = (r.category || '').slice(0, 24);
+          t.reason = (r.reason || '').slice(0, 60);
+        }
+      });
+
+      const orderedIds = aiResults.map(r => r.id);
+      const reordered = [];
+      orderedIds.forEach(id => {
+        const t = tasks.find(x => x.id === id);
+        if(t) reordered.push(t);
+      });
+      tasks.forEach(t => { if(!orderedIds.includes(t.id)) reordered.push(t); });
+      tasks = reordered;
+
+      render();
+      playFlip(oldPositions);
+      saveTasks();
+
+      const urgentCount = aiResults.filter(r => r.priority === 'urgent').length;
+      aiStatus.textContent = 'Reordered ' + aiResults.length + ' tasks' +
+        (urgentCount ? ' · ' + urgentCount + ' marked urgent' : '');
+
+    }catch(err){
+      console.error(err);
+      aiStatus.textContent = 'AI organize failed — try again in a moment.';
+      aiStatus.classList.add('error');
+    }finally{
+      organizeBtn.classList.remove('loading');
+      organizeBtn.disabled = false;
+    }
+  }
+
+  organizeBtn.addEventListener('click', organizeWithAI);
+
+  loadTasks();
+})();
+</script>
+
+</body>
+</html>
